@@ -1,6 +1,8 @@
 {
   "routes": [
     { "src": "/PC.json", "dest": "/PC.json" },
+    { "src": "/PC123.json", "dest": "/PC123.json" },
+    { "src": "/PC456.json", "dest": "/PC456.json" },
     { "src": "/(.*)", "dest": "/dashboard.html" }
   ]
 }
