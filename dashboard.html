@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitoring počítačů</title>
+  <style>
+    :root {
+      --primary-color: #007bff;
+      --secondary-color: #28a745;
+      --background-light: #eef2f3;
+      --background-dark: #121212;
+      --text-light: #333;
+      --text-dark: #e0e0e0;
+      --table-light: white;
+      --table-dark: #1e1e1e;
+      --button-light: #007bff;
+      --button-dark: #333;
+      --row-light: #f8f9fa;
+      --row-dark: #292929;
+      --highlight-light: #ffcc99;
+      --highlight-dark: #ff6600;
+      --border-dark: #444;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--background-light);
+      color: var(--text-light);
+      padding: 20px;
+      text-align: center;
+      transition: 0.3s;
+    }
+    .container { max-width: 90%; margin: auto; }
+    h2 { color: var(--primary-color); animation: fadeIn 1s; }
+    .buttons { display: flex; justify-content: center; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
+    button {
+      padding: 12px 20px; border: none;
+      background-color: var(--button-light);
+      color: white; cursor: pointer; font-size: 16px;
+      border-radius: 5px; transition: 0.3s;
+      display: flex; align-items: center; gap: 5px;
+      animation: fadeIn 0.5s ease-in;
+    }
+    button:hover { background-color: #0056b3; }
+    .toggle-theme { background-color: var(--secondary-color); }
+    .toggle-theme:hover { background-color: #218838; }
+    
+    /* Responsive table */
+    .table-container {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%; margin-top: 20px;
+      border-collapse: collapse;
+      background: var(--table-light);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      border-radius: 8px; overflow: hidden;
+      transition: 0.3s; animation: fadeInUp 1s;
+    }
+    th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+    th { background-color: var(--primary-color); color: white; text-transform: uppercase; }
+    tr:nth-child(even) { background-color: var(--row-light); }
+    .low-ram { background-color: var(--highlight-light) !important; }
+    .low-disk { background-color: #ffeb99 !important; }
+    .high-uptime { background-color: var(--highlight-light) !important; }
+    .footer { margin-top: 20px; font-size: 14px; color: #666; animation: fadeIn 1.5s; }
+    
+    /* Dark mode styles */
+    .dark-mode {
+      background-color: var(--background-dark);
+      color: var(--text-dark);
+    }
+    .dark-mode table { background: var(--table-dark); color: var(--text-dark); border: 1px solid var(--border-dark); }
+    .dark-mode th { background-color: var(--button-dark); color: var(--text-dark); border-bottom: 2px solid var(--border-dark); }
+    .dark-mode td { color: var(--text-dark); border-color: var(--border-dark); }
+    .dark-mode button { background-color: var(--button-dark); color: var(--text-dark); border: 1px solid var(--border-dark); }
+    .dark-mode button:hover { background-color: #555; }
+    .dark-mode tr:nth-child(even) { background-color: var(--row-dark); }
+    .dark-mode .low-ram, .dark-mode .high-uptime { background-color: var(--highlight-dark) !important; }
+    
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Monitoring počítačů</h2>
+    <div class="buttons">
+      <button onclick="location.reload();">🔄 Obnovit data</button>
+      <button class="toggle-theme" onclick="toggleTheme();">🌙 Přepnout režim</button>
+    </div>
+    <div class="table-container">
+      <table id="pcTable">
+        <thead>
+          <tr>
+            <th>PC</th>
+            <th>Uživatel</th>
+            <th>OS</th>
+            <th>RAM</th>
+            <th>Disk</th>
+            <th>Uptime</th>
+            <th>Čas</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    function toggleTheme() {
+      document.body.classList.toggle("dark-mode");
+    }
+    
+    async function loadAllPCData() {
+      const pcs = ['PC.json', 'PC123.json', 'PC456.json']; 
+      const tbody = document.querySelector("#pcTable tbody");
+      tbody.innerHTML = "";
+
+      for (let pc of pcs) {
+        try {
+          const response = await fetch(pc);
+          if (!response.ok) throw new Error("Nenalezeno: " + pc);
+          const data = await response.json();
+
+          if (data.uptime) {
+            data.uptime = data.uptime.replace("dnĂ­", "dní");
+          }
+
+          const row = `
+            <tr>
+              <td>${data.hostname}</td>
+              <td>${data.user}</td>
+              <td>${data.os}</td>
+              <td>${data.ramGB} GB</td>
+              <td>${data.diskFreeGB} GB</td>
+              <td>${data.uptime}</td>
+              <td>${data.timestamp}</td>
+            </tr>`;
+          
+          tbody.innerHTML += row;
+        } catch (e) {
+          console.error("Chyba při načítání JSON:", pc, e);
+        }
+      }
+    }
+
+    loadAllPCData();
+  </script>
+</body>
+</html>
