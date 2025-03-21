@@ -1,0 +1,6 @@
+{
+  "routes": [
+    { "src": "/PC.json", "dest": "/PC.json" },
+    { "src": "/(.*)", "dest": "/dashboard.html" }
+  ]
+}
